@@ -36,7 +36,7 @@ describe("GET /api/users/:id", () => {
       const newUser = {
         firstname: "",
         lastname: "",
-        email: "",
+        email: `${crypto.randomUUID()}@test.co`,
         city: "",
         language: null, // indiqué comme NULL donc pas obligatoire
       };
