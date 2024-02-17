@@ -2,7 +2,7 @@ const request = require("supertest");
 
 const app = require("../src/app");
 
-const database = require("../database")
+const database = require("../database");
 
 afterAll(() => database.end());
 
@@ -29,5 +29,56 @@ describe("GET /api/users/:id", () => {
     const response = await request(app).get("/api/users/0");
 
     expect(response.status).toEqual(404);
+  });
+
+  describe("POST /api/users", () => {
+    it("should return created user", async () => {
+      const newUser = {
+        firstname: "",
+        lastname: "",
+        email: "",
+        city: "",
+        language: null, // indiqué comme NULL donc pas obligatoire
+      };
+
+      const response = await request(app).post("/api/users").send(newUser);
+
+      expect(response.status).toEqual(201);
+      expect(response.body).toHaveProperty("id");
+      expect(typeof response.body.id).toBe("number");
+
+      const [result] = await database.query(
+        "SELECT * FROM users WHERE id=?",
+        response.body.id
+      );
+
+      const [userInDatabase] = result;
+
+      expect(userInDatabase).toHaveProperty("id");
+
+      expect(userInDatabase).toHaveProperty("firstname");
+      expect(userInDatabase).toStrictEqual(newUser.firstname);
+      
+      expect(userInDatabase).toHaveProperty("lastname");
+      expect(userInDatabase).toStrictEqual(newUser.lastname);
+      
+      expect(userInDatabase).toHaveProperty("email");
+      expect(userInDatabase).toStrictEqual(newUser.email);
+      
+      expect(userInDatabase).toHaveProperty("city");
+      expect(userInDatabase).toStrictEqual(newUser.city);
+    });
+
+    it("should return an error", async () => {
+      const userWithMissingProps = {
+        firstname: "Fine",
+      };
+
+      const response = await request(app)
+        .post("/api/users")
+        .send(userWithMissingProps);
+
+      expect(response.status).toEqual(500);
+    });
   });
 });
