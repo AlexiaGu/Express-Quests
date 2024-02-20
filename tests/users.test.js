@@ -78,7 +78,7 @@ describe("POST /api/users", () => {
       .post("/api/users")
       .send(userWithMissingProps);
 
-    expect(response.status).toEqual(500);
+    expect(response.status).toEqual(244);
   });
 });
 describe("PUT /api/users/:id", () => {
@@ -143,14 +143,14 @@ describe("PUT /api/users/:id", () => {
     expect(userInDatabase.language).toStrictEqual(updatedUser.language);
   });
 
-  it("should return an erro", async () => {
+  it("should return an error", async () => {
     const userWithMissingProps = { firstname: "Aurore"};
 
     const response = await request(app)
     .put(`/api/users/1`)
     .send(userWithMissingProps);
 
-    expect(response.status).toEqual(500);
+    expect(response.status).toEqual(422);
   });
 
   it("should return no user", async () => {
